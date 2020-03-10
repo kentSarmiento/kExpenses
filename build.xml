@@ -1,0 +1,43 @@
+<project name="kExpenses" default="compile" basedir=".">
+
+    <property name="src.dir" value="src" />
+    <property name="test.dir" value="test" />
+    <property name="lib.dir" value="lib" />
+    <property name="build.dir" value="build" />
+    <property name="class.dir" value="${build.dir}/classes" />
+    <property name="test.report.dir" value="${build.dir}/test-report" />
+
+    <path id="test.classpath">
+        <pathelement path="${class.dir}"/>
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <target name="init">
+        <mkdir dir="${class.dir}" />
+        <mkdir dir="${test.report.dir}" />
+    </target>
+
+    <target name="compile" depends="clean,init">
+        <javac destdir="${class.dir}" srcdir="${src.dir}" includeantruntime="false" />
+        <javac destdir="${class.dir}" classpathref="test.classpath" srcdir="${test.dir}" includeantruntime="false" />
+    </target>
+
+    <!-- https://junit.org/junit5/docs/current/user-guide/#running-tests-console-launcher -->
+    <target name="test" depends="compile">
+        <java classpathref="test.classpath" classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
+            <arg value="--scan-classpath"/>
+            <arg line="--reports-dir ${test.report.dir}"/>
+        </java>
+        <junitreport todir="${test.report.dir}">
+            <fileset dir="${test.report.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${test.report.dir}"/>
+        </junitreport>
+    </target>
+
+</project>
